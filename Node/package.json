@@ -1,0 +1,22 @@
+{
+	"name": "CMPE281-Personal",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": 
+	{
+		"start": "node app.js"
+	},
+
+	"dependencies": 
+	{
+		"express": "3.2.6",
+		"ejs": "*",
+		"async": "2.3.0",
+		"multer": "1.1.0",
+		"body-parser": "1.14.1",
+		"extract-zip": "1.6.0",
+		"fs-extra": "3.0.0",
+		"base64-img": "1.0.3",
+		"cors": "2.8.3"
+	}
+}
