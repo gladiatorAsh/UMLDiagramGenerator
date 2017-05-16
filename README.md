@@ -13,7 +13,7 @@ Multitenant UML Diagram Generator
 7. User sees the image file generated and grades the result.
 8. Result is posted to Node.js backend and redirected to RDS instance which inserts grade into db.
 
-##Deployment
+## Deployment
 1. Deploy Angular JS code, contained in AngularJS folder and run Server.js in an AWS EC2 instance.
 2. Deploy Node code,contained in Node folder and run Server.js in another EC2 instance.
 
