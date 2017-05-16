@@ -3,13 +3,11 @@ var async = require("async");
 var multer = require('multer');
 var extract = require('extract-zip');
 var base64Img = require('base64-img');
-var cors = require('cors');
 var fs= require('fs');
 var originalName='';
 var newFolder='';
 var fileName='uml.png';
 var port=3000;
-//var uploadDir = "/home/vrushal/Downloads/cmpe281/Project/CMPE281-Personal/uploads/Tenant1";
 var uploadDir= "/home/ec2-user/Project/CMPE281-Personal/uploads/Tenant1";
 var app = express();
 
@@ -31,13 +29,14 @@ var upload = multer({
 	storage : storage
 }).single('file');
 
+//Get Latest file generated in dir
 function getNewestFile(dir, regexp) {
     var newest = null;
     var files = fs.readdirSync(dir);
     var one_matched = 0;
 
     for (var i = 0; i < files.length; i++) {
-		
+
         if (regexp.test(files[i]) === false){
             continue;
         }
@@ -60,12 +59,15 @@ function getNewestFile(dir, regexp) {
     return null;
 }
 
+//Return static
 app.get('/', function(req, res) {
 	res.sendfile(__dirname + "/index.html");
 });
 
+//Upload file
 app.post('/api/1/file', function(req, res) {
 	async.waterfall([
+			//Upload using multer
 			function(callback) {
 				upload(req, res, function(err) {
 					if (err) {
@@ -75,6 +77,7 @@ app.post('/api/1/file', function(req, res) {
 					callback(null);
 				});
 			},
+			//Extract zip file
 			function(callback) {
 			 	extract(tempFilePath,{
 				        dir: newFolder
@@ -83,42 +86,32 @@ app.post('/api/1/file', function(req, res) {
 					if (err === typeof(undefined)){
 						callback(err);
 						}
-			
+
 					callback(null);
-										
+
 				});
-				
+
 			},
+			//Execute java command to generate UML
 			function(callback) {
-				
-				//var child = require('child_process').spawn('java',
-					//[ '-jar', arg1,'--headless' ,'example.seq']);
-		
+
 				var child = require('child_process').spawn('java',
 							[ '-jar', uploadDir+ '/umlparser.jar',newFolder , uploadDir+'/'+fileName]);
-			
-				/*
-				var exec = require('child_process').exec;
-				
-				var child=exec(' java -jar C:/281/CMPE281-Personal/uploads/Tenant1/umlparser.jar C:/281/CMPE281-Personal/uploads/Tenant1/resources C:/281/CMPE281-Personal/uploads/Tenant1/uml.png',
-				  function (error, stdout, stderr){
-				    console.log('Output -> ' + stdout);
-				    if(error !== null){
-				      console.log("Error -> "+error);
-				    }
-				});
-				*/
 
 				callback(null);
 
-			},function(callback){
+			},
+			//Return Base-64 encoded image
+			function(callback){
 				var file=getNewestFile(newFolder+"/", new RegExp('.*\.png'));
 				var data = base64Img.base64Sync(file);
 			    res.setHeader('Content-Type', 'application/json');
 			    res.jsonp(data);
 			}
 
-	], function(err, result) {
+	],
+		//Return Error
+	 function(err, result) {
 		if(err!==null){
 			console.log(err);
 			res.end(err);
